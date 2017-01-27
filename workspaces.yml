@@ -1,0 +1,14 @@
+# Path of directory with all workspaces
+root_dir: ~/work/
+
+# Whether to Ignore unknown directories under the workspaces root dir
+ignore_unknown: false
+
+# Specific dirs under the workspace root dir to ignore
+dirs_to_ignore:
+    - ignore_this_dir
+    - and_also_this_dir
+
+# Mapping of workspace dir to the name of its main repository
+workspace_to_main_repo:
+    devstack: rackattack-physical
