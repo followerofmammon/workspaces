@@ -22,7 +22,7 @@ else
         if [ -d $workspace_dir ]; then
             cd $workspace_dir
         else
-            echo Workspace \"$1\" does not exist in $rootdir
+            echo Workspace \"$1\" does not exist in $root_dir
         fi
     fi
 fi

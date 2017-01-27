@@ -86,7 +86,7 @@ def get_workspace_description(workspaces_root_dir, workspace_dirname):
     except subprocess.CalledProcessError:
         print_warning("%s is not a git repository" % (repo_path))
         return None
-    head_description = "\n".join(["\t" + line for line in head_description.splitlines()[:5]])
+    head_description = "\n".join(head_description.splitlines()[:5])
     cmd = ["git", "--work-tree", repo_path, "--git-dir", git_dir, "branch"]
     branch = subprocess.check_output(cmd)
     branch = branch.splitlines()[0].strip("\t *")
@@ -107,17 +107,18 @@ def print_workspaces_with_main_repos(workspaces):
     workspaces_colors = choose_strings_colors(workspaces.keys())
     repos = set([workspace['repo'] for workspace in workspaces.itervalues()])
     for repo in repos:
+        colored_repo = colored(repo, repos_colors[repo])
+        print colored_repo + ":"
         relevant_workspaces = [workspace_name for workspace_name in workspaces
                                if workspaces[workspace_name]['repo'] == repo]
         for workspace_name in relevant_workspaces:
             workspace = workspaces[workspace_name]
-            colored_repo = colored(repo, repos_colors[repo])
             bold_workspace = colored(workspace_name, attrs=['bold'],
                                      color=workspaces_colors[workspace_name])
-            print "%(repo)s [%(workspace_name)s]" % dict(workspace_name=bold_workspace,
-                                                         repo=colored_repo)
+            print "\t[%(workspace_name)s]" % dict(workspace_name=bold_workspace)
             print "\tbranch: %(branch)s" % workspace
-            print workspace['head_description']
+            head = ''.join(["\t\t" + description for description in workspace['head_description'].splitlines()])
+            print "\t" + workspace['head_description']
             print
 
 
