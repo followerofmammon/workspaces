@@ -78,6 +78,7 @@ def get_workspace_description(workspaces_root_dir, workspace_dirname):
     repo = get_main_repo(workspace_path)
     if repo is None:
         return None
+
     repo_path = os.path.join(workspace_path, repo)
     git_dir = os.path.join(repo_path, ".git")
     cmd = ["git", "--work-tree", repo_path, "--git-dir", git_dir, "show", "--quiet", "--oneline"]
@@ -87,10 +88,20 @@ def get_workspace_description(workspaces_root_dir, workspace_dirname):
         print_warning("%s is not a git repository" % (repo_path))
         return None
     head_description = "\n".join(head_description.splitlines()[:5])
+
     cmd = ["git", "--work-tree", repo_path, "--git-dir", git_dir, "branch"]
     branch = subprocess.check_output(cmd)
     branch = branch.splitlines()[0].strip("\t *")
-    return dict(repo=repo, branch=branch, head_description=head_description)
+
+    cmd = ["git", "--work-tree", repo_path, "--git-dir", git_dir, "status", "--porcelain"]
+    status = subprocess.check_output(cmd)
+    status = status.splitlines()
+    untracked_files_modified = bool([line for line in status if line.startswith("??")])
+    tracked_files_modified = bool([line for line in status if not line.startswith("??")])
+
+    return dict(repo=repo, branch=branch, head_description=head_description,
+                untracked_files_modified=untracked_files_modified,
+                tracked_files_modified=tracked_files_modified)
 
 
 def choose_strings_colors(strings):
@@ -115,7 +126,12 @@ def print_workspaces_with_main_repos(workspaces):
             workspace = workspaces[workspace_name]
             bold_workspace = colored(workspace_name, attrs=['bold'],
                                      color=workspaces_colors[workspace_name])
-            print "\t[%(workspace_name)s]" % dict(workspace_name=bold_workspace)
+            print "\t[%(workspace_name)s]" % dict(workspace_name=bold_workspace),
+            if workspace['tracked_files_modified']:
+                print "[M]",
+            if workspace['untracked_files_modified']:
+                print "[??]",
+            print
             print "\tbranch: %(branch)s" % workspace
             head = ''.join(["\t\t" + description for description in workspace['head_description'].splitlines()])
             print "\t" + workspace['head_description']
