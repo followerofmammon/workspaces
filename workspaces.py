@@ -3,6 +3,7 @@ import os
 import sys
 import yaml
 import argparse
+import tabulate
 import subprocess
 from termcolor import colored
 
@@ -91,7 +92,11 @@ def get_workspace_description(workspaces_root_dir, workspace_dirname):
 
     cmd = ["git", "--work-tree", repo_path, "--git-dir", git_dir, "branch"]
     branch = subprocess.check_output(cmd)
-    branch = branch.splitlines()[0].strip("\t *")
+    branchLine = [line.strip("\t *") for line in branch.splitlines() if line.startswith("* ")]
+    if branchLine:
+        branch = branchLine[0]
+    else:
+        branch = "No branch"
 
     cmd = ["git", "--work-tree", repo_path, "--git-dir", git_dir, "status", "--porcelain"]
     status = subprocess.check_output(cmd)
@@ -112,30 +117,40 @@ def choose_strings_colors(strings):
     return string_to_color
 
 
-def print_workspaces_with_main_repos(workspaces):
+def print_workspaces_with_main_repos(workspaces, rootdir):
     repos = list(set([workspace['repo'] for workspace in workspaces.values()]))
     repos_colors = choose_strings_colors(repos)
     workspaces_colors = choose_strings_colors(workspaces.keys())
-    repos = set([workspace['repo'] for workspace in workspaces.itervalues()])
+    repos = list(set([workspace['repo'] for workspace in workspaces.itervalues()]))
     for repo in repos:
         colored_repo = colored(repo, repos_colors[repo])
         print colored_repo + ":"
         relevant_workspaces = [workspace_name for workspace_name in workspaces
                                if workspaces[workspace_name]['repo'] == repo]
         for workspace_name in relevant_workspaces:
+            workspace_path = os.path.abspath(os.path.join(rootdir, workspace_name))
+            curdir = os.path.abspath(os.path.curdir)
+            in_workspace = curdir.startswith(workspace_path)
             workspace = workspaces[workspace_name]
             bold_workspace = colored(workspace_name, attrs=['bold'],
                                      color=workspaces_colors[workspace_name])
-            print "\t[%(workspace_name)s]" % dict(workspace_name=bold_workspace),
+            workspace_output = ""
+            workspace_output += "[%(workspace_name)s]" % dict(workspace_name=bold_workspace)
             if workspace['tracked_files_modified']:
-                print "[M]",
+                workspace_output += "[M]"
             if workspace['untracked_files_modified']:
-                print "[??]",
-            print
-            print "\tbranch: %(branch)s" % workspace
-            head = ''.join(["\t\t" + description for description in workspace['head_description'].splitlines()])
-            print "\t" + workspace['head_description']
-            print
+                workspace_output += "[??]"
+            workspace_output += "\n"
+            workspace_output += "branch: %(branch)s\n" % workspace
+            head = ''.join(["" + description for description in workspace['head_description'].splitlines()])
+            workspace_output += head
+            if in_workspace:
+                workspace_output = tabulate.tabulate([[workspace_output]])
+            workspace_output = "\n".join(["\t%s" % (line,) for line in workspace_output.splitlines()])
+            is_last = workspace_name == relevant_workspaces[-1] and (repo == repos[-1])
+            if not is_last:
+                workspace_output += "\n"
+            print workspace_output
 
 
 def print_workspaces_without_main_repos(workspaces, rootdir):
@@ -160,7 +175,7 @@ def print_workspaces_without_main_repos(workspaces, rootdir):
 def print_workspaces(workspaces, workspaces_root_dir):
     workspaces_with_main_repos = {workspace_name: workspace for (workspace_name, workspace)
         in workspaces.iteritems() if workspace is not None}
-    print_workspaces_with_main_repos(workspaces_with_main_repos)
+    print_workspaces_with_main_repos(workspaces_with_main_repos, workspaces_root_dir)
     workspaces_without_main_repos = [workspace_name for workspace_name in workspaces
                                      if workspace_name not in workspaces_with_main_repos]
     print_workspaces_without_main_repos(workspaces_without_main_repos, workspaces_root_dir)
