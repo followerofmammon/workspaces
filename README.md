@@ -1,1 +1,1 @@
-To install, run setup.sh, or `make`.
+To install, run setup.sh.
