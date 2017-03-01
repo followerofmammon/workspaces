@@ -251,9 +251,10 @@ def main():
             print workspace
             workspace_path = os.path.join(workspaces_root_dir, workspace)
             main_repo = get_main_repo(workspace_path)
-            main_repo_path = os.path.join(workspace_path, main_repo)
-            if os.path.exists(main_repo_path):
-                print os.path.join(workspace, main_repo)
+            if main_repo is not None:
+                main_repo_path = os.path.join(workspace_path, main_repo)
+                if os.path.exists(main_repo_path):
+                    print os.path.join(workspace, main_repo)
     elif args.command == 'describe':
         workspaces = get_workspaces(workspaces_root_dir)
         descriptions = dict()
