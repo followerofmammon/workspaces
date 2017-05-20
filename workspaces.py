@@ -3,7 +3,6 @@ import os
 import sys
 import yaml
 import argparse
-import tabulate
 import subprocess
 from termcolor import colored
 
@@ -144,9 +143,11 @@ def print_workspaces_with_main_repos(workspaces, rootdir):
             workspace_output += "branch: %(branch)s\n" % workspace
             head = ''.join(["" + description for description in workspace['head_description'].splitlines()])
             workspace_output += head
-            if in_workspace:
-                workspace_output = tabulate.tabulate([[workspace_output]])
-            workspace_output = "\n".join(["\t%s" % (line,) for line in workspace_output.splitlines()])
+
+            prefix = "---->\t" if in_workspace else "\t"
+            workspace_lines = workspace_output.splitlines()
+            workspace_lines = ["%s%s" % (prefix, line) for line in workspace_lines]
+            workspace_output = "\n".join(workspace_lines)
             is_last = workspace_name == relevant_workspaces[-1] and (repo == repos[-1])
             if not is_last:
                 workspace_output += "\n"
