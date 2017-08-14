@@ -3,6 +3,7 @@ import os
 import sys
 import yaml
 import argparse
+import tabulate
 import subprocess
 from termcolor import colored
 
@@ -126,21 +127,32 @@ def print_workspaces_with_main_repos(workspaces, rootdir):
         print colored_repo + ":"
         relevant_workspaces = [workspace_name for workspace_name in workspaces
                                if workspaces[workspace_name]['repo'] == repo]
+        relevant_workspaces.sort()
         for workspace_name in relevant_workspaces:
             workspace_path = os.path.abspath(os.path.join(rootdir, workspace_name))
             curdir = os.path.abspath(os.path.curdir)
-            in_workspace = (curdir + os.path.sep).startswith(workspace_path + os.path.sep)
+            in_workspace = curdir.startswith(workspace_path)
             workspace = workspaces[workspace_name]
-            bold_workspace = colored(workspace_name, attrs=['bold'],
-                                     color=workspaces_colors[workspace_name])
+            is_branch_checked_out = not workspace['branch'].startswith("(HEAD detached from ")
+            if is_branch_checked_out:
+                workspace_name_output = colored(workspace_name, attrs=['bold'],
+                                        color=workspaces_colors[workspace_name])
+            else:
+                workspace_name_output = workspace_name
             workspace_output = ""
-            workspace_output += "[%(workspace_name)s]" % dict(workspace_name=bold_workspace)
+            workspace_output += "[%(workspace_name)s]" % dict(workspace_name=workspace_name_output)
             if workspace['tracked_files_modified']:
                 workspace_output += "[M]"
             if workspace['untracked_files_modified']:
                 workspace_output += "[??]"
             workspace_output += "\n"
-            workspace_output += "branch: %(branch)s\n" % workspace
+            # workspace_output += "branch: %(branch)s\n" % workspace
+            if is_branch_checked_out:
+                branch_output = colored(workspace['branch'], attrs=['bold'],
+                                        color=workspaces_colors[workspace_name])
+            else:
+                branch_output = workspace['branch']
+            workspace_output += "branch: %s\n" % (branch_output,)
             head = ''.join(["" + description for description in workspace['head_description'].splitlines()])
             workspace_output += head
 
