@@ -131,9 +131,9 @@ def print_workspaces_with_main_repos(workspaces, rootdir):
         for workspace_name in relevant_workspaces:
             workspace_path = os.path.abspath(os.path.join(rootdir, workspace_name))
             curdir = os.path.abspath(os.path.curdir)
-            in_workspace = curdir.startswith(workspace_path)
+            in_workspace = (curdir + os.path.sep).startswith(workspace_path + os.path.sep)
             workspace = workspaces[workspace_name]
-            is_branch_checked_out = not workspace['branch'].startswith("(HEAD detached from ")
+            is_branch_checked_out = not workspace['branch'].startswith("(HEAD detached ")
             if is_branch_checked_out:
                 workspace_name_output = colored(workspace_name, attrs=['bold'],
                                         color=workspaces_colors[workspace_name])
@@ -146,7 +146,6 @@ def print_workspaces_with_main_repos(workspaces, rootdir):
             if workspace['untracked_files_modified']:
                 workspace_output += "[??]"
             workspace_output += "\n"
-            # workspace_output += "branch: %(branch)s\n" % workspace
             if is_branch_checked_out:
                 branch_output = colored(workspace['branch'], attrs=['bold'],
                                         color=workspaces_colors[workspace_name])
