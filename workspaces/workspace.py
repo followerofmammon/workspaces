@@ -27,6 +27,8 @@ class Workspace(object):
         return Workspace(workspace_name)
 
     def is_branch_checked_out(self):
+        if self.main_repo is None:
+            return False
         return not self.branch.startswith("(HEAD detached ")
 
     def _read(self):

@@ -5,6 +5,7 @@ import configuration
 
 
 def print_workspaces_with_main_repos(workspaces):
+    workspaces = [workspace for workspace in workspaces if workspace.main_repo is not None]
     main_repos = list(set([workspace.main_repo for workspace in workspaces]))
     repo_colors = _choose_strings_colors(main_repos)
     workspaces_colors = _choose_strings_colors([workspace.name for workspace in workspaces])
@@ -14,7 +15,7 @@ def print_workspaces_with_main_repos(workspaces):
 
 
 def print_workspaces_without_main_repos(workspaces):
-    workspaces = [workspace.name for workspace in workspaces if workspace.name is None]
+    workspaces = [workspace for workspace in workspaces if workspace.main_repo is None]
     global configuration
     if configuration.ignore_unknown:
         return
@@ -54,26 +55,33 @@ def _get_main_repo_output(main_repo, workspaces, repo_colors, workspaces_colors)
 
 
 def _get_workspace_output(workspace, main_repo, workspaces_colors):
+    lines = list()
+
+    # Header line
     formatted_name = workspace.name
     if workspace.is_branch_checked_out():
         formatted_name = termcolor.colored(formatted_name, attrs=['bold'],
                                            color=workspaces_colors[workspace.name])
-    header_line = "[%(name)s]" % dict(name=formatted_name)
+    line = "[%(name)s]" % dict(name=formatted_name)
     if workspace.tracked_files_modified:
-        header_line += "[M]"
+	line += "[M]"
     if workspace.untracked_files_modified:
-        header_line += "[??]"
+	line += "[??]"
+    lines.append(line)
 
+    # Branch line
     formatted_branch = workspace.branch
     if workspace.is_branch_checked_out():
-        formatted_branch = termcolor.colored(formatted_branch, attrs=['bold'],
-                                             color=workspaces_colors[workspace.name])
-    branch_line = "branch: %s" % (formatted_branch,)
+	formatted_branch = termcolor.colored(formatted_branch, attrs=['bold'],
+					    color=workspaces_colors[workspace.name])
+    line = "branch: %s" % (formatted_branch,)
+    lines.append(line)
 
+    # Commit line
     head_description = "\n".join(workspace.head_description.splitlines()[:5])
-    commit_line = ''.join(["" + description for description in head_description.splitlines()])
+    line = ''.join(["" + description for description in head_description.splitlines()])
+    lines.append(line)
 
-    lines = [header_line, branch_line, commit_line]
     prefix = "---->\t" if _is_workdir_inside_workspace(workspace) else "\t"
     return '\n'.join(["%s%s" % (prefix, line) for line in lines])
 
