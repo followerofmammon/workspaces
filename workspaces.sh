@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function workspaces_help {
+function _workspaces_help {
     echo This tool lists workspaces in a predefined directory, and describes the current git HEAD
     echo in the 'main' git repository, for each workspace.
     echo
@@ -21,7 +21,7 @@ if [[ -z $1 ]]; then
     inner_workspaces_script describe-all-workspaces
 else
     if [ "$1" == "--help" ]; then
-        workspaces_help
+        _workspaces_help
     else
         root_dir="`inner_workspaces_script getrootdir`"
         workspace_dir="$root_dir/$1"
@@ -31,7 +31,7 @@ else
         else
             inner_workspaces_script user-command $@
             if [ $? -ne 0 ]; then
-                workspaces_help
+                _workspaces_help
             fi
         fi
     fi
