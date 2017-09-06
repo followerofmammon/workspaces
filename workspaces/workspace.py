@@ -15,7 +15,16 @@ class Workspace(object):
         self.tracked_files_modified = None
         self.branch = None
         self.head_description = None
-        self._read()
+        if self.main_repo is not None:
+	    self._read()
+
+    @staticmethod
+    def factory_from_path(_path):
+        dirpath = os.path.join(configuration.root_dir, _path)
+        if not os.path.isdir(dirpath):
+            raise ValueError(dirpath, "not a directory")
+        workspace_name = dirpath.split(configuration.root_dir)[1].split(os.path.sep)[1]
+        return Workspace(workspace_name)
 
     def is_branch_checked_out(self):
         return not self.branch.startswith("(HEAD detached ")
