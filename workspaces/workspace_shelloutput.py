@@ -4,67 +4,22 @@ import termcolor
 import configuration
 
 
-def choose_strings_colors(strings):
-    strings = list(strings)
-    strings.sort()
-    colors = ["red", "green", "blue", "magenta", "cyan", "yellow", "grey"] * 10
-    string_to_color = dict(zip(strings, colors))
-    return string_to_color
-
-
 def print_workspaces_with_main_repos(workspaces):
-    repos = list(set([_workspace.repo for _workspace in workspaces]))
-    repos_colors = choose_strings_colors(repos)
-    workspaces_colors = choose_strings_colors([_workspace.name for _workspace in workspaces])
-    for repo in repos:
-        colored_repo = termcolor.colored(repo, repos_colors[repo])
-        print colored_repo + ":"
-        relevant_workspaces = [_workspace for _workspace in workspaces if _workspace.repo == repo]
-        relevant_workspaces.sort()
-        for _workspace in relevant_workspaces:
-            workspace_path = os.path.abspath(os.path.join(configuration.root_dir, _workspace.name))
-            curdir = os.path.abspath(os.path.curdir)
-            in_workspace = (curdir + os.path.sep).startswith(workspace_path + os.path.sep)
-            is_branch_checked_out = not _workspace.branch.startswith("(HEAD detached ")
-            if is_branch_checked_out:
-                workspace_name_output = termcolor.colored(_workspace.name, attrs=['bold'],
-                                                          color=workspaces_colors[_workspace.name])
-            else:
-                workspace_name_output = _workspace.name
-            workspace_output = ""
-            workspace_output += "[%(workspace_name)s]" % dict(workspace_name=workspace_name_output)
-            if _workspace.tracked_files_modified:
-                workspace_output += "[M]"
-            if _workspace.untracked_files_modified:
-                workspace_output += "[??]"
-            workspace_output += "\n"
-            if is_branch_checked_out:
-                branch_output = termcolor.colored(_workspace.branch, attrs=['bold'],
-                                                  color=workspaces_colors[_workspace.name])
-            else:
-                branch_output = _workspace.branch
-            workspace_output += "branch: %s\n" % (branch_output,)
-            head_description = _workspace.get_head_description()
-            head = ''.join(["" + description for description in head_description.splitlines()])
-            workspace_output += head
-
-            prefix = "---->\t" if in_workspace else "\t"
-            workspace_lines = workspace_output.splitlines()
-            workspace_lines = ["%s%s" % (prefix, line) for line in workspace_lines]
-            workspace_output = "\n".join(workspace_lines)
-            is_last = _workspace.name == relevant_workspaces[-1] and (repo == repos[-1])
-            if not is_last:
-                workspace_output += "\n"
-            print workspace_output
+    main_repos = list(set([workspace.main_repo for workspace in workspaces]))
+    repo_colors = _choose_strings_colors(main_repos)
+    workspaces_colors = _choose_strings_colors([workspace.name for workspace in workspaces])
+    main_repo_output = [_get_main_repo_output(main_repo, workspaces, repo_colors, workspaces_colors)
+                        for main_repo in main_repos]
+    print "\n\n".join(main_repo_output)
 
 
 def print_workspaces_without_main_repos(workspaces):
-    workspaces = [_workspace.name for _workspace in workspaces if _workspace.name is None]
+    workspaces = [workspace.name for workspace in workspaces if workspace.name is None]
     global configuration
     if configuration.ignore_unknown:
         return
     if workspaces:
-        workspaces_names = [_workspace.name for _workspace in workspaces]
+        workspaces_names = [workspace.name for workspace in workspaces]
         print "Did not find a main repository for the following workspaces:\n\t",
         print "\n\t".join(workspaces_names)
         print ("To set a specific main repository for a workspace, you can either: \n"
@@ -78,3 +33,51 @@ def print_workspaces_without_main_repos(workspaces):
         print
         print "If the dir '%s' is not your workspace root dir, you can either:" % (configuration.root_dir,)
 
+
+def _choose_strings_colors(strings):
+    strings = list(strings)
+    strings.sort()
+    colors = ["red", "green", "blue", "magenta", "cyan", "yellow", "grey"] * 10
+    string_to_color = dict(zip(strings, colors))
+    return string_to_color
+
+
+def _get_main_repo_output(main_repo, workspaces, repo_colors, workspaces_colors):
+    colored_repo = termcolor.colored(main_repo, repo_colors[main_repo])
+    output = colored_repo + ":\n"
+    relevant_workspaces = [workspace for workspace in workspaces if workspace.main_repo == main_repo]
+    relevant_workspaces.sort()
+    workspaces_output = [_get_workspace_output(workspace, main_repo, workspaces_colors)
+                         for workspace in relevant_workspaces]
+    output += "\n\n".join(workspaces_output)
+    return output
+
+
+def _get_workspace_output(workspace, main_repo, workspaces_colors):
+    formatted_name = workspace.name
+    if workspace.is_branch_checked_out():
+        formatted_name = termcolor.colored(formatted_name, attrs=['bold'],
+                                           color=workspaces_colors[workspace.name])
+    header_line = "[%(name)s]" % dict(name=formatted_name)
+    if workspace.tracked_files_modified:
+        header_line += "[M]"
+    if workspace.untracked_files_modified:
+        header_line += "[??]"
+
+    formatted_branch = workspace.branch
+    if workspace.is_branch_checked_out():
+        formatted_branch = termcolor.colored(formatted_branch, attrs=['bold'],
+                                             color=workspaces_colors[workspace.name])
+    branch_line = "branch: %s" % (formatted_branch,)
+
+    head_description = "\n".join(workspace.head_description.splitlines()[:5])
+    commit_line = ''.join(["" + description for description in head_description.splitlines()])
+
+    lines = [header_line, branch_line, commit_line]
+    prefix = "---->\t" if _is_workdir_inside_workspace(workspace) else "\t"
+    return '\n'.join(["%s%s" % (prefix, line) for line in lines])
+
+
+def _is_workdir_inside_workspace(workspace):
+    curdir = os.path.abspath(os.path.curdir)
+    return (curdir + os.path.sep).startswith(workspace.path + os.path.sep)
