@@ -20,7 +20,7 @@ def main():
     elif args.command == 'describe':
         describe.describe()
     elif args.command == 'getrootdir':
-        print configuration.read_configuration
+        print configuration.root_dir
 
 if __name__ == "__main__":
     main()

@@ -8,6 +8,8 @@ else
         echo
         echo - To list workspaces, run with no args.
         echo
+        echo - To go into workspace dir, run with the dir as the first argument.
+        echo
         echo - To change the workspaces root dir, either:
         echo "    * set WORKSPACES_ROOT_DIR env var."
         echo "    * set root_dir in the /etc/workspaces.yml configuration file."
@@ -21,7 +23,7 @@ else
         if [ -d $workspace_dir ]; then
             cd $workspace_dir
         else
-            echo Workspace \"$1\" does not exist in $root_dir
+            inner_workspaces_script describe $@
         fi
     fi
 fi
