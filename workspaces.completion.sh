@@ -12,7 +12,7 @@ _workspaces()
     opts=""
 
     if [[ ${cur} == * ]] ; then
-	opts="`$inner_script_path list` --help"
+	opts="`$inner_script_path autocompletionlist` --help -l --list"
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     fi

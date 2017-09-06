@@ -4,12 +4,13 @@ import termcolor
 import configuration
 
 
-def print_workspaces_with_main_repos(workspaces):
+def print_workspaces_with_main_repos(workspaces, is_detailed=False):
     workspaces = [workspace for workspace in workspaces if workspace.main_repo is not None]
     main_repos = list(set([workspace.main_repo for workspace in workspaces]))
     repo_colors = _choose_strings_colors(main_repos)
     workspaces_colors = _choose_strings_colors([workspace.name for workspace in workspaces])
-    main_repo_output = [_get_main_repo_output(main_repo, workspaces, repo_colors, workspaces_colors)
+    main_repo_output = [_get_main_repo_output(main_repo, workspaces, repo_colors, workspaces_colors,
+                                              is_detailed)
                         for main_repo in main_repos]
     print "\n\n".join(main_repo_output)
 
@@ -43,18 +44,18 @@ def _choose_strings_colors(strings):
     return string_to_color
 
 
-def _get_main_repo_output(main_repo, workspaces, repo_colors, workspaces_colors):
+def _get_main_repo_output(main_repo, workspaces, repo_colors, workspaces_colors, is_detailed=False):
     colored_repo = termcolor.colored(main_repo, repo_colors[main_repo])
     output = colored_repo + ":\n"
     relevant_workspaces = [workspace for workspace in workspaces if workspace.main_repo == main_repo]
     relevant_workspaces.sort()
-    workspaces_output = [_get_workspace_output(workspace, main_repo, workspaces_colors)
+    workspaces_output = [_get_workspace_output(workspace, main_repo, workspaces_colors, is_detailed)
                          for workspace in relevant_workspaces]
     output += "\n\n".join(workspaces_output)
     return output
 
 
-def _get_workspace_output(workspace, main_repo, workspaces_colors):
+def _get_workspace_output(workspace, main_repo, workspaces_colors, is_detailed):
     lines = list()
 
     # Header line
@@ -73,14 +74,20 @@ def _get_workspace_output(workspace, main_repo, workspaces_colors):
     formatted_branch = workspace.branch
     if workspace.is_branch_checked_out():
 	formatted_branch = termcolor.colored(formatted_branch, attrs=['bold'],
-					    color=workspaces_colors[workspace.name])
+                                             color=workspaces_colors[workspace.name])
     line = "branch: %s" % (formatted_branch,)
     lines.append(line)
 
     # Commit line
     head_description = "\n".join(workspace.head_description.splitlines()[:5])
-    line = ''.join(["" + description for description in head_description.splitlines()])
+    line = ''.join(head_description.splitlines())
     lines.append(line)
+
+    if is_detailed:
+        lines.append('Repositories:')
+        entries = workspace.listdir()
+        entries_lines = ["\t%s/%s" % (workspace.name, entry,) for entry in entries]
+        lines.extend(entries_lines)
 
     prefix = "---->\t" if _is_workdir_inside_workspace(workspace) else "\t"
     return '\n'.join(["%s%s" % (prefix, line) for line in lines])

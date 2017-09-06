@@ -18,7 +18,7 @@ function _workspaces_help {
 }
 
 if [[ -z $1 ]]; then
-    inner_workspaces_script describe-all-workspaces
+    inner_workspaces_script describeallworkspaces
 else
     if [ "$1" == "--help" ]; then
         _workspaces_help
@@ -27,9 +27,9 @@ else
         workspace_dir="$root_dir/$1"
         if [ -d $workspace_dir ]; then
             cd $workspace_dir
-            inner_workspaces_script describe-one-workspace $@
+            inner_workspaces_script describeoneworkspace $@
         else
-            inner_workspaces_script user-command $@
+            inner_workspaces_script explicitcommand $@
             if [ $? -ne 0 ]; then
                 _workspaces_help
             fi

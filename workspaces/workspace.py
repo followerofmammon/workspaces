@@ -16,7 +16,7 @@ class Workspace(object):
         self.branch = None
         self.head_description = None
         if self.main_repo is not None:
-	    self._read()
+            self._read()
 
     @staticmethod
     def factory_from_path(_path):
@@ -30,6 +30,10 @@ class Workspace(object):
         if self.main_repo is None:
             return False
         return not self.branch.startswith("(HEAD detached ")
+
+    def listdir(self):
+        entries = os.listdir(self.path)
+        return sorted(entries)
 
     def _read(self):
         status = self._git_command("status", "--porcelain")
