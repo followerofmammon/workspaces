@@ -44,3 +44,9 @@ class Workspace(object):
         branch = subprocess.check_output(cmd)
         branchLine = [line.strip("\t *") for line in branch.splitlines() if line.startswith("* ")]
         return branchLine[0] if branchLine else "No branch"
+
+
+def list_workspaces_dirs():
+    return [dirname for dirname in os.listdir(configuration.root_dir) if
+            os.path.isdir(os.path.join(configuration.root_dir, dirname)) and
+            dirname not in configuration.dirs_to_ignore]

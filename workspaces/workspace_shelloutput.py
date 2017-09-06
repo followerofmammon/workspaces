@@ -1,11 +1,7 @@
-#!/usr/bin/python
 import os
-import argparse
-from termcolor import colored
+import termcolor
 
-import workspace
 import configuration
-import workspacetomainrepo
 
 
 def choose_strings_colors(strings):
@@ -21,19 +17,18 @@ def print_workspaces_with_main_repos(workspaces):
     repos_colors = choose_strings_colors(repos)
     workspaces_colors = choose_strings_colors([_workspace.name for _workspace in workspaces])
     for repo in repos:
-        colored_repo = colored(repo, repos_colors[repo])
+        colored_repo = termcolor.colored(repo, repos_colors[repo])
         print colored_repo + ":"
         relevant_workspaces = [_workspace for _workspace in workspaces if _workspace.repo == repo]
         relevant_workspaces.sort()
         for _workspace in relevant_workspaces:
-            workspace_name = _workspace.name
             workspace_path = os.path.abspath(os.path.join(configuration.root_dir, _workspace.name))
             curdir = os.path.abspath(os.path.curdir)
             in_workspace = (curdir + os.path.sep).startswith(workspace_path + os.path.sep)
             is_branch_checked_out = not _workspace.branch.startswith("(HEAD detached ")
             if is_branch_checked_out:
-                workspace_name_output = colored(_workspace.name, attrs=['bold'],
-                                        color=workspaces_colors[_workspace.name])
+                workspace_name_output = termcolor.colored(_workspace.name, attrs=['bold'],
+                                                          color=workspaces_colors[_workspace.name])
             else:
                 workspace_name_output = _workspace.name
             workspace_output = ""
@@ -44,8 +39,8 @@ def print_workspaces_with_main_repos(workspaces):
                 workspace_output += "[??]"
             workspace_output += "\n"
             if is_branch_checked_out:
-                branch_output = colored(_workspace.branch, attrs=['bold'],
-                                        color=workspaces_colors[_workspace.name])
+                branch_output = termcolor.colored(_workspace.branch, attrs=['bold'],
+                                                  color=workspaces_colors[_workspace.name])
             else:
                 branch_output = _workspace.branch
             workspace_output += "branch: %s\n" % (branch_output,)
@@ -83,50 +78,3 @@ def print_workspaces_without_main_repos(workspaces):
         print
         print "If the dir '%s' is not your workspace root dir, you can either:" % (configuration.root_dir,)
 
-
-def print_workspaces(workspaces):
-    print_workspaces_with_main_repos(workspaces)
-    print_workspaces_without_main_repos(workspaces)
-
-
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("command", nargs="?", default="describe",
-                        choices=["list", "describe", "getrootdir"])
-    return parser.parse_args()
-
-
-def get_workspaces_dirpaths(rootdir):
-    dirs = [dirname for dirname in os.listdir(rootdir) if os.path.isdir(os.path.join(rootdir, dirname))]
-    return [_dir for _dir in dirs if _dir not in configuration.dirs_to_ignore]
-
-
-def list_items_for_auto_copmletion():
-    workspaces = get_workspaces_dirpaths(configuration.root_dir)
-    for workspace in workspaces:
-        print workspace
-        workspace_path = os.path.join(configuration.root_dir, workspace)
-        main_repo = workspacetomainrepo.get_main_repo(workspace_path)
-        if main_repo is not None:
-            main_repo_path = os.path.join(workspace_path, main_repo)
-            if os.path.exists(main_repo_path):
-                print os.path.join(workspace, main_repo)
-
-
-def describe_workspaces():
-    workspaces_dirs = get_workspaces_dirpaths(configuration.root_dir)
-    workspaces = [workspace.Workspace(_workspace) for _workspace in workspaces_dirs]
-    print_workspaces(workspaces)
-
-
-def main():
-    args = parse_args()
-    if args.command == 'list':
-        list_items_for_auto_copmletion()
-    elif args.command == 'describe':
-        describe_workspaces()
-    elif args.command == 'getrootdir':
-        print configuration.read_configuration
-
-if __name__ == "__main__":
-    main()

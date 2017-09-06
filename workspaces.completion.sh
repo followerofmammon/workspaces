@@ -1,6 +1,6 @@
 binpath='/usr/share/workspaces'
 outer_script_path="$binpath/workspaces.sh"
-inner_script_path="$binpath/workspaces.py"
+inner_script_path="$binpath/main.py"
 alias workspaces="source $outer_script_path"
 alias inner_workspaces_script="$inner_script_path"
 _workspaces()

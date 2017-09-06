@@ -11,7 +11,6 @@ else
         echo - To change the workspaces root dir, either:
         echo "    * set WORKSPACES_ROOT_DIR env var."
         echo "    * set root_dir in the /etc/workspaces.yml configuration file."
-        echo "    * edit the default rootdir in the workspaces.py script."
         echo
         echo - To set a specific main repository for a workspace, either:
         echo "    * add a '.workspaces.yml' inside the workspace dir, and add the line 'main_repo: <your_repo_dirname>' to it."
