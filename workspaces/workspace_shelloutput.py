@@ -49,13 +49,13 @@ def _get_main_repo_output(main_repo, workspaces, repo_colors, workspaces_colors,
     output = colored_repo + ":\n"
     relevant_workspaces = [workspace for workspace in workspaces if workspace.main_repo == main_repo]
     relevant_workspaces.sort()
-    workspaces_output = [_get_workspace_output(workspace, main_repo, workspaces_colors, is_detailed)
+    workspaces_output = [_get_workspace_output(workspace, workspaces_colors, is_detailed)
                          for workspace in relevant_workspaces]
     output += "\n\n".join(workspaces_output)
     return output
 
 
-def _get_workspace_output(workspace, main_repo, workspaces_colors, is_detailed):
+def _get_workspace_output(workspace, workspaces_colors, is_detailed):
     lines = list()
 
     # Header line
