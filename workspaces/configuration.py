@@ -34,6 +34,7 @@ def _set_workspaces_root_dir():
         if root_dir.startswith("~/"):
             inner_part = root_dir[2:]
             root_dir = os.path.join(os.path.expanduser("~"), inner_part)
+    root_dir = os.path.realpath(root_dir)
 
 
 def read_configuration():
