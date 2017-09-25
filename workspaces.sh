@@ -5,6 +5,8 @@ function _workspaces_help {
     echo in the 'main' git repository, for each workspace.
     echo
     echo - To list workspaces, run with no args.
+    echo      * To specify repositories, run with -l.
+    echo      * To choose a dir in interactive mode, run with -i.
     echo
     echo - To go into workspace dir, run with the dir as the first argument.
     echo
@@ -29,7 +31,11 @@ else
             cd $workspace_dir
             inner_workspaces_script describeoneworkspace $@
         else
+            rm /tmp/_workspaces.chosen
             inner_workspaces_script explicitcommand $@
+            if [ "$1" == "-i" ]; then
+                cd `cat /tmp/_workspaces.chosen`;
+            fi
             if [ $? -ne 0 ]; then
                 _workspaces_help
             fi

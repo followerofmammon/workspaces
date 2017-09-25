@@ -5,6 +5,7 @@ import argparse
 import configuration
 from commands import autocompletionlist
 from commands import describeoneworkspace
+from explicit_commands import interactive
 from commands import describeallworkspaces
 from explicit_commands import describeindetail
 
@@ -28,6 +29,7 @@ def explicit_command(args):
     parser = argparse.ArgumentParser()
     parser.add_argument("workspace", type=str, nargs="?")
     parser.add_argument("-l", "--list", default=False, action="store_true")
+    parser.add_argument("-i", "--interactive", default=False, action="store_true")
     return parser.parse_args(args)
 
 def main():
@@ -45,6 +47,8 @@ def main():
         if args.workspace is None:
             if args.list:
                 describeindetail.describeindetail()
+            elif args.interactive:
+                interactive.interactive()
         else:
             describeindetail.describeindetail()
 

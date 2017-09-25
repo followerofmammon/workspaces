@@ -1,1 +1,2 @@
 termcolor
+git+https://github.com/followerofmammon/dirsync@v1.0.0
