@@ -9,7 +9,7 @@ _result = None
 
 
 def pick():
-    fstree = dirtree.DirTree.factory_from_filesystem(configuration.root_dir, max_depth=2)
+    fstree = dirtree.DirTree.factory_from_filesystem(configuration.root_dir, max_depth=2, dirs_only=True)
     picker = treepicker.TreePicker(fstree, min_nr_options=1, max_nr_options=1)
     global _result
     _result = picker.pick_one()
