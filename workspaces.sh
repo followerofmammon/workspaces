@@ -31,7 +31,7 @@ else
             cd $workspace_dir
             inner_workspaces_script describeoneworkspace $@
         else
-            (rm /tmp/_workspaces.chosen > /dev/null) || true
+            rm /tmp/_workspaces.chosen -rf
             inner_workspaces_script explicitcommand $@
             if [ "$1" == "-i" ]; then
                 cd `cat /tmp/_workspaces.chosen`;
