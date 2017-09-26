@@ -34,7 +34,9 @@ else
             rm /tmp/_workspaces.chosen -rf
             inner_workspaces_script explicitcommand $@
             if [ "$1" == "-i" ]; then
-                cd `cat /tmp/_workspaces.chosen`;
+                if [ -f /tmp/_workspaces.chosen ]; then
+                    cd `cat /tmp/_workspaces.chosen`;
+                fi
             fi
             if [ $? -ne 0 ]; then
                 _workspaces_help
