@@ -4,4 +4,3 @@ def printwarning(warning):
     print "\t", warning
     print "*************"
     print
-

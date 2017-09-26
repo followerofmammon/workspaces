@@ -32,6 +32,7 @@ def explicit_command(args):
     parser.add_argument("-i", "--interactive", default=False, action="store_true")
     return parser.parse_args(args)
 
+
 def main():
     args, inner_args = parse_args()
     if args.command == 'autocompletionlist':

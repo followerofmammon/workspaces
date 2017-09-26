@@ -40,8 +40,8 @@ def get_main_repo(workspace_path):
                 return repo
             else:
                 printwarning.parintwarning("Warning: Repo dir %s does not exist in workspace %s as configured "
-                                           "in %s" % (
-                                           repo, workspace_name, configuration.WORKSPACES_CONFIG_FILENAME))
+                                           "in %s" % (repo, workspace_name,
+                                                      configuration.WORKSPACES_CONFIG_FILENAME))
                 return None
     else:
         printwarning.printwarning("workspace_to_main_repo in the %s should be a dictionary of workspaces to "

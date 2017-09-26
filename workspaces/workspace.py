@@ -1,6 +1,8 @@
 import os
 import subprocess
+from dirsync import dirtree
 
+import workspace
 import printwarning
 import configuration
 import workspacetomainrepo
@@ -60,7 +62,25 @@ class Workspace(object):
         return result
 
 
+def _remove_non_workspace_entries(fstree):
+    workspaces_dirs = workspace.list_workspaces_dirs()
+    for node in fstree.children(fstree.root):
+        entry = node.data
+        if entry.name not in workspaces_dirs:
+            fstree.remove_node(node.identifier)
+
+
 def list_workspaces_dirs():
     return [dirname for dirname in os.listdir(configuration.root_dir) if
             os.path.isdir(os.path.join(configuration.root_dir, dirname)) and
             dirname not in configuration.dirs_to_ignore]
+
+
+def get_workspaces_tree():
+    fstree = dirtree.DirTree.factory_from_filesystem(configuration.root_dir,
+                                                     max_depth=2,
+                                                     dirs_only=True,
+                                                     include_hidden=False,
+                                                     silent=True)
+    _remove_non_workspace_entries(fstree)
+    return fstree

@@ -25,7 +25,7 @@ def _set_workspaces_root_dir():
             root_dir = DEFAULT_WORKSPACES_ROOT_DIR
         if not os.path.exists(root_dir):
             print ("It appears that the current configured workspaces rootdir '%s' does not exist. To "
-                "configure the right root dir, you can either:" % (root_dir,))
+                   "configure the right root dir, you can either:" % (root_dir,))
             print "* set the WORKSPACES_ROOT_DIR env var"
             print "* Add root_dir: <your_root_dir> to %s" % (WORKSPACES_CONFIG_FILENAME,)
             print "Or, you could create this root dir :)"
