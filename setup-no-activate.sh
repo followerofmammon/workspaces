@@ -1,6 +1,6 @@
 #!/bin/bash
 echo Installing PIP requirements...
-sudo pip install -r pip-requirements.txt
+sudo pip install -r pip-requirements.txt -U
 echo Copying scripts...
 sudo mkdir -p /usr/share/workspaces
 sudo cp -fr workspaces/* workspaces.sh /usr/share/workspaces/

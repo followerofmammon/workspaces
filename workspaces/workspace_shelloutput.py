@@ -38,7 +38,7 @@ def print_workspaces_without_main_repos(workspaces):
 def _choose_strings_colors(strings):
     strings = list(strings)
     strings.sort()
-    colors = ["red", "green", "blue", "magenta", "cyan", "yellow", "grey", "orange"] * 10
+    colors = ["red", "green", "blue", "magenta", "yellow", "grey"] * 10
     string_to_color = dict(zip(strings, colors))
     return string_to_color
 
