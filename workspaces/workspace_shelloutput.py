@@ -53,41 +53,50 @@ def _get_workspace_output(workspace, workspaces_colors, is_detailed, repo_colors
     lines = list()
 
     # Header line
-    formatted_name = workspace.name
     color = None
     if workspace.is_branch_checked_out():
         color = workspaces_colors[workspace.name]
-    line = "[%(name)s]" % dict(name=formatted_name)
-    lines.append((line, color, workspace.is_branch_checked_out()))
+    line = list()
+    line.append(("[", None, False))
+    line.append((workspace.name, color, workspace.is_branch_checked_out()))
+    line.append(("]", None, False))
+    lines.append(line)
 
     prefix = "    "
     # Main repo
-    lines.append((prefix + workspace.main_repo, repo_colors[workspace.main_repo], False))
+    line = list()
+    line.append((prefix + workspace.main_repo, repo_colors[workspace.main_repo], False))
+    line.append((": ", None, False))
 
-    # Branch line
+    # Branch
+    string_part = ""
     formatted_branch = workspace.branch
     if workspace.is_branch_checked_out():
         color = workspaces_colors[workspace.name]
-    line = formatted_branch + " "
+    string_part += formatted_branch + " "
+    line.append((string_part, color, workspace.is_branch_checked_out()))
+    string_part = ""
     if workspace.tracked_files_modified:
-        line += "[M]"
+        string_part += "[M]"
     if workspace.untracked_files_modified:
-        line += "[??]"
-    lines.append((prefix + line, color, workspace.is_branch_checked_out()))
+        string_part += "[??]"
+    line.append((string_part, None, False))
+    lines.append(line)
 
     # Commit line
-    head_description = "\n".join(workspace.head_description.splitlines()[:5])
-    line = ''.join(head_description.splitlines())
-    lines.append((prefix + line, None, False))
+    head_description = "".join(workspace.head_description.splitlines()[:5])
+    line = list()
+    line.append((prefix + head_description, None, False))
+    lines.append(line)
 
     if is_detailed:
-        lines.append((prefix + 'Repositories:', None, False))
+        line = list()
+        line.append((prefix + 'Repositories:', None, False))
+        lines.append(line)
         entries = workspace.listdir()
-        entries_lines = [("%s/%s" % (workspace.name, entry,),) for entry in entries]
+        entries_lines = [[(("%s/%s" % (workspace.name, entry,),), None, False)] for entry in entries]
         lines.extend(entries_lines)
 
-    lines.append(("", None, False))
-    del line
     return lines
 
 
