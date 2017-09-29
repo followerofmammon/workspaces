@@ -27,7 +27,6 @@ else
             root_dir="`inner_workspaces_script getrootdir`"
             workspace_dir="$root_dir/$1"
             if [ -d $workspace_dir ]; then
-                echo asd $workspace_dir
                 cd $workspace_dir
                 inner_workspaces_script describeoneworkspace $@
             else
