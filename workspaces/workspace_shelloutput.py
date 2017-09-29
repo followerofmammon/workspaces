@@ -1,13 +1,13 @@
 import os
+import itertools
 
 import configuration
 
 
 def prettify_workspaces_tree(workspaces_tree, workspaces, is_detailed=False):
     workspaces_colors = _choose_strings_colors([workspace.name for workspace in workspaces])
-    main_repos = list(set([workspace.main_repo for workspace in workspaces]))
+    main_repos = list(set(itertools.chain(*[workspace.main_repos for workspace in workspaces])))
     repo_colors = _choose_strings_colors(main_repos)
-    main_repos = list(set([workspace.main_repo for workspace in workspaces]))
     for node in workspaces_tree.children(workspaces_tree.root):
         workspace_name = node.data.name
         workspace = [workspace for workspace in workspaces if workspace.name == workspace_name][0]
@@ -26,7 +26,7 @@ def print_workspaces_without_main_repos(workspaces):
         print ("To set a specific main repository for a workspace, you can either: \n"
                "* add a '.workspaces.yml' inside the workspace dir, and add the line "
                "'main_repo: <your_repo_dirname>' to it.")
-        print ("* Add a workspace_to_main_repo dictionary in /etc/workspaces.yml that maps a workspace "
+        print ("* Add a workspace_to_main_repos dictionary in /etc/workspaces.yml that maps a workspace "
                "name to the name of its main repository name")
         print
         print ("To ignore a dir in the workspace root dir (to not see this message), set ignore_unknown "
@@ -43,10 +43,10 @@ def _choose_strings_colors(strings):
     return string_to_color
 
 
-def _compare_workspaces(workspace_a, workspace_b):
-    if workspace_a.main_repo != workspace_b.main_repo:
-        return 1 if workspace_a.main_repo > workspace_b.main_repo else -1
-    return 1 if workspace_a.name > workspace_b.name else -1
+#def _compare_workspaces(workspace_a, workspace_b):
+#    if workspace_a.main_repo != workspace_b.main_repo:
+#        return 1 if workspace_a.main_repo > workspace_b.main_repo else -1
+#    return 1 if workspace_a.name > workspace_b.name else -1
 
 
 def _get_workspace_output(workspace, workspaces_colors, is_detailed, repo_colors):
@@ -54,7 +54,8 @@ def _get_workspace_output(workspace, workspaces_colors, is_detailed, repo_colors
 
     # Header line
     color = None
-    if workspace.is_branch_checked_out():
+    branch = workspace.branch()
+    if branch is not None:
         color = workspaces_colors[workspace.name]
     line = list()
     line.append(("[", None, False))
@@ -64,30 +65,33 @@ def _get_workspace_output(workspace, workspaces_colors, is_detailed, repo_colors
 
     prefix = "    "
     # Main repo
-    line = list()
-    line.append((prefix + workspace.main_repo, repo_colors[workspace.main_repo], False))
-    line.append((": ", None, False))
+    for repo_name, repo in workspace.main_repos.iteritems():
+        line = list()
+        line.append((prefix + repo_name, repo_colors[repo_name], False))
+        line.append((": ", None, False))
 
-    # Branch
-    string_part = ""
-    formatted_branch = workspace.branch
-    if workspace.is_branch_checked_out():
-        color = workspaces_colors[workspace.name]
-    string_part += formatted_branch + " "
-    line.append((string_part, color, workspace.is_branch_checked_out()))
-    string_part = ""
-    if workspace.tracked_files_modified:
-        string_part += "[M]"
-    if workspace.untracked_files_modified:
-        string_part += "[??]"
-    line.append((string_part, None, False))
-    lines.append(line)
+        # Branch
+        string_part = ""
+        branch = repo.branch
+        if repo.is_branch_checked_out():
+            color = workspaces_colors[workspace.name]
+        else:
+            color = None
+        string_part += branch + " "
+        line.append((string_part, color, repo.is_branch_checked_out()))
+        string_part = ""
+        if repo.tracked_files_modified:
+            string_part += "[M]"
+        if repo.untracked_files_modified:
+            string_part += "[??]"
+        line.append((string_part, None, False))
+        lines.append(line)
 
-    # Commit line
-    head_description = "".join(workspace.head_description.splitlines()[:5])
-    line = list()
-    line.append((prefix + head_description, None, False))
-    lines.append(line)
+        # Commit line
+        head_description = "".join(repo.head_description.splitlines()[:5])
+        line = list()
+        line.append((prefix + head_description, None, False))
+        lines.append(line)
 
     if is_detailed:
         line = list()

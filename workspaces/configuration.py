@@ -6,14 +6,14 @@ import printwarning
 
 
 DEFAULT_WORKSPACES_ROOT_DIR = os.path.join(os.path.expanduser("~"), "work", "code")
-DEFAULT_REPOSITORY_TO_SHOW_BY_PRIORITY = ["strato-storage", "monkey"]
+DEFAULT_REPOSITORY_TO_SHOW_BY_PRIORITY = ["strato-storage"]
 REPO_CONFIG_FILENAME = ".workspaces.yml"
 WORKSPACES_CONFIG_FILENAME = "/etc/workspaces.yml"
 
 root_dir = None
 ignore_unknown = False
 dirs_to_ignore = list()
-workspace_to_main_repo = dict()
+workspace_to_main_repos = dict()
 
 
 def _set_workspaces_root_dir():
@@ -39,7 +39,7 @@ def _set_workspaces_root_dir():
 
 def read_configuration():
     global dirs_to_ignore
-    global workspace_to_main_repo
+    global workspace_to_main_repos
     with open(WORKSPACES_CONFIG_FILENAME) as config_file:
         try:
             configuration = yaml.load(config_file)
@@ -59,8 +59,8 @@ def read_configuration():
     elif not isinstance(dirs_to_ignore, list):
         printwarning.printwarning("Badly formed 'dirs_to_ignore' in configuration file %" %
                                   (configuration.WORKSPACES_CONFIG_FILENAME,))
-    if not isinstance(workspace_to_main_repo, dict):
-        printwarning.printwarning("workspace_to_main_repo in %s should be a dictionary of workspaces to "
+    if not isinstance(workspace_to_main_repos, dict):
+        printwarning.printwarning("workspace_to_main_repos in %s should be a dictionary of workspaces to "
                                   "main repository dir names" % (configuration.WORKSPACES_CONFIG_FILENAME,))
 
 

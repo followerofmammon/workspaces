@@ -10,7 +10,9 @@ _result = None
 
 def pick():
     fstree = tree.get()
-    picker = treepicker.TreePicker(fstree, min_nr_options=1, max_nr_options=1, including_root=False)
+    header = "To configure main repos, or for more help, run with --help."
+    picker = treepicker.TreePicker(fstree, min_nr_options=1, max_nr_options=1, including_root=False,
+                                   header=header)
     global _result
     _result = picker.pick_one()
 
