@@ -14,6 +14,12 @@ def prettify_workspaces_tree(workspaces_tree, workspaces, is_detailed=False):
         node.tag = _get_workspace_output(workspace, workspaces_colors, is_detailed, repo_colors)
 
 
+def get_workspace_output(workspace):
+    workspaces_colors = _choose_strings_colors([workspace.name])
+    repo_colors = _choose_strings_colors(workspace.main_repos)
+    return _get_workspace_output(workspace, workspaces_colors, False, repo_colors)
+
+
 def print_workspaces_without_main_repos(workspaces):
     workspaces = [workspace for workspace in workspaces if workspace.main_repo is None]
     global configuration
