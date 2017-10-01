@@ -9,6 +9,10 @@ dirs_to_ignore:
     - ignore_this_dir
     - and_also_this_dir
 
+# List of dir patterns to include
+#dirs_to_ignore:
+#    - include_these_dirs*
+
 # Mapping of workspace dir to the name of its main repository
 workspace_to_main_repo:
     devstack: rackattack-physical

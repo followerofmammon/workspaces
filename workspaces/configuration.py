@@ -14,6 +14,7 @@ root_dir = None
 ignore_unknown = False
 dirs_to_ignore = list()
 workspace_to_main_repos = dict()
+dirs_to_include = list()
 
 
 def _set_workspaces_root_dir():
@@ -37,8 +38,21 @@ def _set_workspaces_root_dir():
     root_dir = os.path.realpath(root_dir)
 
 
+def _read_list(name):
+    list_option = globals().get(name)
+    if list_option is None:
+        list_option = list()
+    elif isinstance(list_option, str):
+        list_option = [list_option]
+    elif not isinstance(list_option, list):
+        printwarning.printwarning("Badly formed '%s' in configuration file %" %
+                                  (name, configuration.WORKSPACES_CONFIG_FILENAME,))
+        return
+    globals().update({name: list_option})
+
 def read_configuration():
     global dirs_to_ignore
+    global dirs_to_include
     global workspace_to_main_repos
     with open(WORKSPACES_CONFIG_FILENAME) as config_file:
         try:
@@ -52,13 +66,8 @@ def read_configuration():
         print "Warning: 'root_dir' is not configured in config file ", WORKSPACES_CONFIG_FILENAME
     else:
         _set_workspaces_root_dir()
-    if dirs_to_ignore is None:
-        dirs_to_ignore = list()
-    elif isinstance(dirs_to_ignore, str):
-        dirs_to_ignore = [dirs_to_ignore]
-    elif not isinstance(dirs_to_ignore, list):
-        printwarning.printwarning("Badly formed 'dirs_to_ignore' in configuration file %" %
-                                  (configuration.WORKSPACES_CONFIG_FILENAME,))
+    _read_list("dirs_to_ignore")
+    _read_list("dirs_to_include")
     if not isinstance(workspace_to_main_repos, dict):
         printwarning.printwarning("workspace_to_main_repos in %s should be a dictionary of workspaces to "
                                   "main repository dir names" % (configuration.WORKSPACES_CONFIG_FILENAME,))

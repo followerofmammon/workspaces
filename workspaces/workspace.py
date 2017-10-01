@@ -1,5 +1,6 @@
 import os
 import subprocess
+import fnmatch
 from dirsync import dirtree
 
 import workspace
@@ -95,10 +96,18 @@ def _remove_non_workspace_entries(fstree):
             fstree.remove_node(node.identifier)
 
 
+def _should_workspace_be_included(dirname):
+    if len(configuration.dirs_to_include) > 0:
+        matching_includes = [include for include in configuration.dirs_to_include if fnmatch.fnmatch(dirname, include)]
+    else:
+        matching_includes = ["dummy"]
+    return len(matching_includes) > 0 and dirname not in configuration.dirs_to_ignore
+
+
 def list_workspaces_dirs():
     return [dirname for dirname in os.listdir(configuration.root_dir) if
             os.path.isdir(os.path.join(configuration.root_dir, dirname)) and
-            dirname not in configuration.dirs_to_ignore]
+            _should_workspace_be_included(dirname)]
 
 
 def get_workspaces_tree():
