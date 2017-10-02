@@ -1,8 +1,6 @@
 import os
 import itertools
 
-import configuration
-
 
 def prettify_workspaces_tree(workspaces_tree, workspaces, is_detailed=False):
     workspaces_colors = _choose_strings_colors([workspace.name for workspace in workspaces])
@@ -20,39 +18,12 @@ def get_workspace_output(workspace):
     return _get_workspace_output(workspace, workspaces_colors, False, repo_colors)
 
 
-def print_workspaces_without_main_repos(workspaces):
-    workspaces = [workspace for workspace in workspaces if workspace.main_repo is None]
-    global configuration
-    if configuration.ignore_unknown:
-        return
-    if workspaces:
-        workspaces_names = [workspace.name for workspace in workspaces]
-        print "Did not find a main repository for the following workspaces:\n\t",
-        print "\n\t".join(workspaces_names)
-        print ("To set a specific main repository for a workspace, you can either: \n"
-               "* add a '.workspaces.yml' inside the workspace dir, and add the line "
-               "'main_repo: <your_repo_dirname>' to it.")
-        print ("* Add a workspace_to_main_repos dictionary in /etc/workspaces.yml that maps a workspace "
-               "name to the name of its main repository name")
-        print
-        print ("To ignore a dir in the workspace root dir (to not see this message), set ignore_unknown "
-               " to true in %s." % (configuration.WORKSPACES_CONFIG_FILENAME,))
-        print
-        print "If the dir '%s' is not your workspace root dir, you can either:" % (configuration.root_dir,)
-
-
 def _choose_strings_colors(strings):
     strings = list(strings)
     strings.sort()
     colors = ["red", "green", "blue", "magenta", "yellow", "grey"] * 10
     string_to_color = dict(zip(strings, colors))
     return string_to_color
-
-
-#def _compare_workspaces(workspace_a, workspace_b):
-#    if workspace_a.main_repo != workspace_b.main_repo:
-#        return 1 if workspace_a.main_repo > workspace_b.main_repo else -1
-#    return 1 if workspace_a.name > workspace_b.name else -1
 
 
 def _get_workspace_output(workspace, workspaces_colors, is_detailed, repo_colors):

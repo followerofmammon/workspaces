@@ -11,7 +11,6 @@ REPO_CONFIG_FILENAME = ".workspaces.yml"
 WORKSPACES_CONFIG_FILENAME = "/etc/workspaces.yml"
 
 root_dir = None
-ignore_unknown = False
 dirs_to_ignore = list()
 workspace_to_main_repos = dict()
 dirs_to_include = list()

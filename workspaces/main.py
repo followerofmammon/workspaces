@@ -7,7 +7,6 @@ from commands import autocompletionlist
 from commands import describeoneworkspace
 from explicit_commands import interactive
 from commands import describeallworkspaces
-from explicit_commands import describeindetail
 
 
 def parse_args():
@@ -46,12 +45,8 @@ def main():
     elif args.command == 'explicitcommand':
         args = explicit_command(inner_args)
         if args.workspace is None:
-            if args.list:
-                describeindetail.describeindetail()
-            elif args.interactive:
+            if args.interactive:
                 interactive.interactive()
-        else:
-            describeindetail.describeindetail()
 
 
 if __name__ == "__main__":
