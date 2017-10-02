@@ -4,14 +4,16 @@ root_dir: ~/work/
 # Whether to Ignore unknown directories under the workspaces root dir
 ignore_unknown: false
 
+# List of dir glob patterns to include
+# If list is empty, the all dirs will be included.
+dirs_to_include:
+#    - include_these_dirs*
+#    - work*
+
 # Specific dirs under the workspace root dir to ignore
 dirs_to_ignore:
     - ignore_this_dir
     - and_also_this_dir
-
-# List of dir patterns to include
-#dirs_to_ignore:
-#    - include_these_dirs*
 
 # Mapping of workspace dir to the name of its main repository
 workspace_to_main_repo:
